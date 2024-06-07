@@ -20,6 +20,7 @@ package stone.rpbot.slash;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import stone.rpbot.slash.say.CommandSay;
+import stone.rpbot.slash.song.CommandSong;
 
 /**
  * 
@@ -45,14 +47,23 @@ public class SlashManager extends ListenerAdapter {
 				ManCommand.OPTION_COMMAND, "The name of the command to get the manual for", true));
 		commands.addCommands(Commands.slash("say", "funny astronaut voice").addOption(OptionType.STRING, "text",
 				"Text to say", true));
-		commands.addCommands(Commands.slash("mpc", "music").addSubcommands(
-				new SubcommandData("toggle", "Toggle the playing state"),
-				new SubcommandData("add", "Add music").addOption(OptionType.STRING, "song", "Song file", true, false)));
+		commands.addCommands(
+				Commands.slash("mpc", "music").addSubcommands(new SubcommandData("toggle", "Toggle the playing state"),
+						new SubcommandData("add", "Add music").addOption(OptionType.STRING, "song", "Song file", true,
+								true),
+						new SubcommandData("next", "Skip to the next track"),
+						new SubcommandData("volume", "Change the player's volume").addOption(OptionType.STRING,
+								"volume", "The volume, use +/- to make it relative", true, false)));
 	}
 
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		commands.get(event.getName()).onSlashCommand(event);
+	}
+
+	@Override
+	public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
+		commands.get(event.getName()).onAutoComplete(event);
 	}
 
 	public void registerSlashCommand(String key, SlashCommand value) {

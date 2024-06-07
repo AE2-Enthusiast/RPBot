@@ -35,7 +35,7 @@ public class MainAudioSendHandler implements AudioSendHandler {
 	// This is the FINAL audio packets to send out to clients, it already has all
 	// the audio mixed into one stream
 	private Queue<ByteBuffer> packets = new ConcurrentLinkedQueue<>();
-	private static int mixedLength = 100 / 40; // 100 ms / 20 ms for number of mixed packets to buffer
+	private static int mixedLength = 200 / 40; // 100 ms / 20 ms for number of mixed packets to buffer
 
 	private Map<Integer, AudioSupplier> audioSuppliers = new ConcurrentHashMap<>();
 	private AudioQueue songQueue;
@@ -67,7 +67,7 @@ public class MainAudioSendHandler implements AudioSendHandler {
 	@Override
 	public ByteBuffer provide20MsAudio() {
 		threadPool.submit(audioStreamMixer);
-		// System.out.println(packetQueues.size());
+		System.out.println("Handler: packets.size() = " + packets.size());
 		hasProvided.set(true);
 		return packets.remove();
 	}
@@ -94,6 +94,7 @@ public class MainAudioSendHandler implements AudioSendHandler {
 		int id = lastId.incrementAndGet();
 		this.audioSuppliers.put(id, supplier);
 		MainAudioSendHandler.threadPool.submit(audioStreamMixer);
+		System.out.println("Adding supplier: " + supplier);
 		return id;
 	}
 
@@ -120,13 +121,17 @@ public class MainAudioSendHandler implements AudioSendHandler {
 			}
 
 			if (!audioSuppliers.isEmpty()) {
+				AtomicBoolean didWork = new AtomicBoolean(false);
 				byte[][] mixedPackets = new byte[mixedLength - packets.size()][AudioUtils.PACKET_ARRAY_LENGTH];
 
 				Spliterator<Map.Entry<Integer, AudioSupplier>> queues = audioSuppliers.entrySet().spliterator();
 				queues.forEachRemaining((entry) -> {
-					// System.out.println("mixing");
+
 					AudioSupplier packetQueue = entry.getValue();
+
 					if (packetQueue.isPlaying()) {
+						System.out.println("mixing");
+						didWork.set(true);
 						for (byte[] mixedPacket : mixedPackets) {
 							byte[] newPacket = packetQueue.getPacket();
 							for (int i = 0; i < mixedPacket.length; i += 2) {
