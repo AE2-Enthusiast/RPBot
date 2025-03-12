@@ -1,5 +1,30 @@
 package stone.rpbot;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+
+import javax.security.auth.login.LoginException;
+
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -26,18 +51,6 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.AttachedFile;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import stone.rpbot.reactorRecorders.BanningCounter;
 import stone.rpbot.reactorRecorders.KarmaCounter;
 import stone.rpbot.reactors.RandomCodeExecutor;
@@ -57,19 +70,6 @@ import stone.rpbot.slash.TimeCommand;
 import stone.rpbot.slash.conway.ConwayManager;
 import stone.rpbot.util.MutableInteger;
 import stone.rpbot.util.SharedConstants;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-
-import javax.security.auth.login.LoginException;
 
 public class RPBot extends ListenerAdapter {
 
@@ -172,23 +172,25 @@ public class RPBot extends ListenerAdapter {
         commands
             .addCommands(Commands
                 .slash("count", "Gets the current count of the specified word and/or user")
-                .addOptions(
-                    new OptionData(OptionType.USER, "user", "The user you want to query")
-                        .setRequired(false),
-                    new OptionData(OptionType.STRING, "term", "The word you want to query about")
-                        .setRequired(true)));
+                        .addOptions(
+                                new OptionData(OptionType.STRING, "term", "The word you want to query about")
+                                        .setRequired(true),
+                                new OptionData(OptionType.USER, "user", "The user you want to query")
+                                        .setRequired(false)));
+
         commands
-            .addCommands(Commands
-                .slash("awhile",
-                    "Like count but takes a user id so users who aren't in the server can be searched")
-                .addOptions(
-                    new OptionData(OptionType.STRING, "user", "The user you want to query")
-                        .setRequired(false),
-                    // this needs to be astringsince Discord only supported numbers up 2^53
-                    new OptionData(OptionType.STRING, "term", "The word you want to query about")
-                        .setRequired(true)));
+                .addCommands(Commands
+                        .slash("awhile",
+                                "Like count but takes a user id so users who aren't in the server can be searched")
+                        .addOptions(
+                                    // this needs to be astringsince Discord only supported numbers up 2^53
+                                new OptionData(OptionType.STRING, "term", "The word you want to query about")
+                                        .setRequired(true),
+                                new OptionData(OptionType.STRING, "user", "The user you want to query")
+                                        .setRequired(false)));
+
         commands
-            .addCommands(Commands
+                .addCommands(Commands
                 .slash("rebuild", "Rebuilds stuff")
                 .addOption(OptionType.CHANNEL, "channel", "The specific channel to rebuild"));
         commands.addCommands(Commands.slash("recount", "Recounts stuff"));
