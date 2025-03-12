@@ -48,7 +48,10 @@ public class SlashManager extends ListenerAdapter {
 
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-		commands.get(event.getName()).onSlashCommand(event);
+      SlashCommand command = commands.get(event.getName());
+      if (command != null) {
+          command.onSlashCommand(event);
+      }
 	}
 
 	public void registerSlashCommand(String key, SlashCommand value) {
