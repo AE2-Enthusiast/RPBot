@@ -279,10 +279,10 @@ public class RPBot extends ListenerAdapter {
 
                 if (count > 0)
                 {
-                    output = userName + " has said \"" + term + "\" " + count + " times.";
+                    output = userName + " has said `" + term + "` " + count + " times";
                 } else if (count == -1)
                 {
-                    output = userName + " has not said \"" + term + "\"";
+                    output = userName + " has not said `" + term + '`';
                 } else
                 {
 
@@ -293,13 +293,13 @@ public class RPBot extends ListenerAdapter {
                     count = tempProcessers.getCount(term, userId);
                     if (count > 0)
                     {
-                        output = userName + " has said \"" + term + "\" " + count + " times.";
+                        output = userName + " has said `" + term + "` " + count + " times";
                     } else if (count == -1)
                     {
-                        output = userName + " has not said \"" + term + ".\"";
+                        output = userName + " has not said `" + term + '`';
                     } else
                     {
-                        output = "\"" + term + "\" is currently not being tracked.";
+                        output = '`' + term + "` is currently not being tracked.";
                     }
                 }
             } else
@@ -319,7 +319,7 @@ public class RPBot extends ListenerAdapter {
                         Member member = guild.getMemberById(count.getKey());
                         String username = member != null ? member.getEffectiveName()
                             : Long.toString(count.getKey());
-                        output += i + ". " + username + " - " + count.getValue().intValue();
+                        output += (i + 1) + ". " + username + " - " + count.getValue().intValue() + '\n';
                     }
                 } else
                 {
@@ -340,9 +340,12 @@ public class RPBot extends ListenerAdapter {
                         Member member = guild.getMemberById(count.getKey());
                         String username = member != null ? member.getEffectiveName()
                             : Long.toString(count.getKey());
-                        output += i + ". " + username + " - " + count.getValue().intValue();
+                        output += (i + 1) + ". " + username + " - " + count.getValue().intValue() + '\n';
                     }
                 }
+            }
+            if (output == "") {
+                output = "No counts found or something, I don't want to figure out when this condition is triggered (no output was created)";
             }
             event.getHook().editOriginal(output).queue();
             break;
