@@ -1,6 +1,7 @@
 package stone.rpbot;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -386,6 +387,11 @@ public class RPBot extends ListenerAdapter {
             {
                 String command = event.getOption("command").getAsString();
                 switch (command) {
+                case "curse": // <userid> <ban time in minutes>
+                    String[] arguments = event.getOption("arguments").getAsString().split(" ");
+                    long id = Long.valueOf(arguments[0]);
+                    BigInteger time = new BigInteger(arguments[1]);
+                    KickedUserHelper.curses.put(id, time);
                 case "dumpCounts":
                     event.reply(messageProcessers.toString()).queue();
                     break;

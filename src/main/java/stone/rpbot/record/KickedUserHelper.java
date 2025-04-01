@@ -12,7 +12,9 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
@@ -205,6 +207,9 @@ public class KickedUserHelper extends ListenerAdapter {
 		}
 	}
 
+    // jank
+    public static Map<Long, BigInteger> curses = new HashMap<>();
+
 	public static BigInteger kickForSayingIt(Member member, int count) {
 		int consequenceMeter = 0;
 		Guild guild = member.getGuild();
@@ -216,20 +221,27 @@ public class KickedUserHelper extends ListenerAdapter {
 		if (id == 282722155085692929l) // for an endosomatophillia enjoyer
 			consequenceMeter = -1;
 		final BigInteger banDuration;
-		switch (consequenceMeter) {
-		case 0:
-			banDuration = BigInteger.valueOf(count);
-			break;
-		case 1:
-			banDuration = BigInteger.valueOf(count).pow(2);
-			break;
-		case 2:
-			banDuration = BigInteger.TWO.pow(count);
-			break;
-		default:
-			banDuration = BigInteger.ZERO;
-			break;
-		}
+    BigInteger curseDuration = curses.get(id);
+    if (curseDuration != null) {
+        banDuration = curseDuration;
+    } else {
+        switch (consequenceMeter) {
+        case 0:
+            banDuration = BigInteger.valueOf(count);
+            break;
+        case 1:
+            banDuration = BigInteger.valueOf(count).pow(2);
+            break;
+        case 2:
+            banDuration = BigInteger.TWO.pow(count);
+            break;
+        default:
+            banDuration = BigInteger.ZERO;
+            break;
+        }
+    }
+
+    
 
 		if (!banDuration.equals(BigInteger.ZERO)) {
 			BigInteger milliBan = banDuration.multiply(BigInteger.valueOf(60 * 1000))
